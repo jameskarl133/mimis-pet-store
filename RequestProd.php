@@ -31,30 +31,23 @@ function getBrandData($conn, $productId) {
 // Get all products
 $productResult = getAllProducts($conn);
 
-if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["productName"])) {
-    // Retrieve form data
-    $quantity = $_POST["quantity"];
-    $productId = $_POST["productId"];
-    $productName = $_POST["productName"];
+// Handle form submission after the HTML content
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["productName"])) {
+        // Retrieve form data
+        $quantity = $_POST["quantity"];
+        $productId = $_POST["productId"];
+        $productName = $_POST["productName"];
 
-    $selectProdprice = "SELECT prod_price FROM product WHERE prod_id = $productId";
-    $prod_price_result = mysqli_query($conn, $selectProdprice);
+        // You may perform additional checks or validation here
 
-    // Check if the query was successful
-    if (!$prod_price_result) {
-        die("Error: " . mysqli_error($conn));
+        // Perform your database insertion here
+        $insertQuery = "INSERT INTO requested (request_qty, prod_id) VALUES ($quantity, $productId)";
+        mysqli_query($conn, $insertQuery);
+
+        // Display a confirmation message
+        echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
     }
-
-    // Fetch the actual product price from the result set
-    $prod_price_row = mysqli_fetch_assoc($prod_price_result);
-    $prod_price = $prod_price_row['prod_price'];
-
-    // Perform your database insertion here
-    $insertQuery = "INSERT INTO requested (request_qty, request_price, prod_id) VALUES ($quantity, $prod_price, $productId)";
-    mysqli_query($conn, $insertQuery);
-
-    // Display a confirmation message
-    echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
 }
 
 ?>
@@ -74,7 +67,7 @@ if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["pro
             background-color: #fff;
             z-index: 1000;
         }
-        </style>
+    </style>
 </head>
 <body>
     <?php include "header.php"; ?>
@@ -121,5 +114,12 @@ if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["pro
             </form>
         </div>
     </div>
+
+    <script>
+        // JavaScript function to open the request popup
+        function openRequestPopup(productId, productName) {
+            alert('Product Requested\nProduct ID: ' + productId + '\nProduct Name: ' + productName);
+        }
+    </script>
 </body>
 </html>
