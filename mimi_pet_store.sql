@@ -148,6 +148,7 @@ INSERT INTO `requested` (`request_id`, `request_qty`, `request_price`, `req_id`,
 CREATE TABLE `requisition` (
   `req_id` int(10) NOT NULL,
   `req_stat` varchar(255) NOT NULL,
+  `req_date` date DEFAULT current_timestamp NOT NULL,
   `emp_id` int(10) NOT NULL,
   `sup_id` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
