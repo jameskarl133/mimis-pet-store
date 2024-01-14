@@ -31,11 +31,41 @@ function getBrandData($conn, $productId) {
 // Get all products
 $productResult = getAllProducts($conn);
 
+// Handle form submission after the HTML content
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["productName"])) {
+        // Retrieve form data
+        $quantity = $_POST["quantity"];
+        $productId = $_POST["productId"];
+        $productName = $_POST["productName"];
+
+        //Perform your database insertion here
+        $insertQuery = "INSERT INTO requested (request_qty, req_id, prod_id) VALUES ($quantity, $reqId, $productId)";
+        mysqli_query($conn, $insertQuery);
+
+        // Display a confirmation message
+        echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
+    }
+}
+
 ?>
 
 <html>
 <head>
     <?php include "Style.php"; ?>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+            z-index: 1000;
+        }
+        </style>
 </head>
 <body>
     <?php include "header.php"; ?>
@@ -61,7 +91,7 @@ $productResult = getAllProducts($conn);
                         <th>Product Description</th>
                         <th>Product Price</th>
                         <th>Brand</th>
-                        <th>Action</th> <!-- New column for the "Request" button -->
+                        <th>Action</th>
                     </tr>
                     <?php
                     while ($row = mysqli_fetch_assoc($productResult)) {
@@ -73,7 +103,7 @@ $productResult = getAllProducts($conn);
                             <td class="editable" onclick="editCell('<?php echo $row['prod_id']; ?>', 'Prod_Desc', '<?php echo $row['prod_desc']; ?>')"><?php echo $row['prod_desc']; ?></td>
                             <td class="editable" onclick="editNumberCell('<?php echo $row['prod_id']; ?>', 'Prod_Price', '<?php echo $row['prod_price']; ?>')"><?php echo $row['prod_price']; ?></td>
                             <td><?php echo $brand_data['prod_brand']; ?></td>
-                            <td><button onclick="requestProduct('<?php echo $row['prod_id']; ?>')">Request</button></td>
+                            <td><button type="button" onclick="openRequestPopup('<?php echo $row['prod_id']; ?>', '<?php echo $row['prod_name']; ?>')">Request</button></td>
                         </tr>
                         <?php
                     }
@@ -82,12 +112,31 @@ $productResult = getAllProducts($conn);
             </form>
         </div>
     </div>
+    
+    <!-- Modal popup for requesting a product -->
+    <div id="requestModal" class="modal">
+        <h3>Request Product</h3>
+        <form id="requestForm" method="post">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" required>
+            <input type="hidden" id="productId" name="productId" value="">
+            <input type="hidden" id="productName" name="productName" value="">
+            <button type="submit">Submit Request</button>
+        </form>
+        <button type="button" onclick="closeRequestPopup()">Cancel</button>
+    </div>
 
     <script>
-        // JavaScript function to handle the "Request" button click
-        function requestProduct(productId) {
-            // You can implement your logic here to handle the product request
-            alert("Product Requested: " + productId);
+        // JavaScript function to open the request popup
+        function openRequestPopup(productId, productName) {
+            document.getElementById('productId').value = productId;
+            document.getElementById('productName').value = productName;
+            document.getElementById('requestModal').style.display = 'block';
+        }
+
+        // JavaScript function to close the request popup
+        function closeRequestPopup() {
+            document.getElementById('requestModal').style.display = 'none';
         }
     </script>
 </body>
