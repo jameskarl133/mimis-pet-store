@@ -1,3 +1,7 @@
+<?php 
+session_start();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,9 +77,9 @@
 }
 
 .login-container img {
-    width: 150px; /* Adjust the width to your preference */
+    width: 150px;
     margin-bottom: 10px;
-    display: inline-block; /* To center the image */
+    display: inline-block;
 }
 
     </style>
@@ -99,6 +103,9 @@
         <div class="form-group">
             <input type="submit" value="Login">
         </div>
+        <div class="form-link">
+                <label for="reg"> Dont have account? <a href ="create_user.php">Click Here</a> 
+            </div>
     </form>
 </div>
 
