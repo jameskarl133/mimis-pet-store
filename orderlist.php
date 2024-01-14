@@ -49,6 +49,14 @@ if (isset($_POST['checkout'])) {
         echo "Transaction failed: " . $e->getMessage();
     }
 }
+if (isset($_POST['cancel'])) {
+    // Start a transaction to ensure atomic operations
+        // Update the purchase table and set status to 'done'
+        $cancelPurchaseSql = "UPDATE purchase SET pur_status = 'cancelled' WHERE pur_status = 'Pending'";
+        mysqli_query($conn, $cancelPurchaseSql);
+        $cancelInvoiceSql = "UPDATE invoice SET invoice_status = 'cancelled' WHERE invoice_status = 'open'";
+        mysqli_query($conn, $cancelInvoiceSql);
+}
 ?>
 
 <html>
@@ -103,13 +111,14 @@ if (isset($_POST['checkout'])) {
                 </table>
 
                 <!-- Checkout Button -->
-                <form method="post">
-                    <button type="submit" name="checkout">Checkout</button>
-                </form>
             <?php else: ?>
                 <p>No orders available.</p>
             <?php endif; ?>
         </div>
+        <form method="post">
+                    <button type="submit" name="checkout">Checkout</button>
+                    <button type="submit" name="cancel">Cancel Invoice</button>
+                </form>
     </div>
 
     <?php include "components/scripts.php"; ?>

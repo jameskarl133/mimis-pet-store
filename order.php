@@ -21,6 +21,9 @@ if (mysqli_num_rows($result) > 0) {
     }
 }
 
+// Initialize variables
+$errorMessage = "";
+
 // Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
@@ -63,13 +66,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $inventoryQty = $inventoryRow['inv_item_qty'];
 
         if ($quantity > $inventoryQty) {
-            echo "Error: Purchase quantity exceeds available inventory quantity.";
+            $errorMessage = "Error: Purchase quantity exceeds available inventory quantity.";
         } else {
             // Insert data into the purchase table with the generated invoice ID
             $insertPurchaseSql = "INSERT INTO purchase (pur_qty, pur_price, pur_status, prod_id, invoice_id) 
                                   VALUES ('$quantity', (SELECT prod_price FROM product WHERE prod_id = '$productId'), 'Pending', '$productId', '$invoiceId')";
             if (!mysqli_query($conn, $insertPurchaseSql)) {
-                die("Error inserting into purchase table: " . mysqli_error($conn));
+                $errorMessage = "Error inserting into purchase table: " . mysqli_error($conn);
+            } else {
+                $errorMessage = "Data inserted successfully.";
             }
         }
     }
@@ -113,6 +118,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             <?php else: ?>
                 <p>No products are available.</p>
+            <?php endif; ?>
+
+            <?php if ($errorMessage): ?>
+                <script>
+                    alert("<?php echo $errorMessage; ?>");
+                </script>
             <?php endif; ?>
         </div>
     </div>
