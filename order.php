@@ -21,8 +21,59 @@ if (mysqli_num_rows($result) > 0) {
     }
 }
 
-// Close the database connection
-mysqli_close($conn);
+// Process form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
+        $productId = $_POST['product_id'];
+        $quantity = $_POST['quantity'];
+
+        // Check if there is an open invoice for the current user
+        $openInvoiceSql = "SELECT * FROM invoice WHERE cus_id = 1 AND invoice_status = 'open'"; // Replace 1 with the actual cus_id
+        $openInvoiceResult = mysqli_query($conn, $openInvoiceSql);
+
+        if (!$openInvoiceResult) {
+            die("Error checking open invoice: " . mysqli_error($conn));
+        }
+
+        $invoiceId = null;
+
+        if (mysqli_num_rows($openInvoiceResult) > 0) {
+            // If there is an open invoice, use its ID
+            $openInvoiceRow = mysqli_fetch_assoc($openInvoiceResult);
+            $invoiceId = $openInvoiceRow['invoice_id'];
+        } else {
+            // If there is no open invoice, create a new one
+            $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')"; // Replace 1 with the actual cus_id
+            if (!mysqli_query($conn, $insertInvoiceSql)) {
+                die("Error creating new invoice: " . mysqli_error($conn));
+            }
+
+            $invoiceId = mysqli_insert_id($conn);
+        }
+
+        // Check if pur_qty is greater than inv_qty_item
+        $checkInventorySql = "SELECT inv_item_qty FROM inventory WHERE prod_id = '$productId'";
+        $checkInventoryResult = mysqli_query($conn, $checkInventorySql);
+
+        if (!$checkInventoryResult) {
+            die("Error checking inventory: " . mysqli_error($conn));
+        }
+
+        $inventoryRow = mysqli_fetch_assoc($checkInventoryResult);
+        $inventoryQty = $inventoryRow['inv_item_qty'];
+
+        if ($quantity > $inventoryQty) {
+            echo "Error: Purchase quantity exceeds available inventory quantity.";
+        } else {
+            // Insert data into the purchase table with the generated invoice ID
+            $insertPurchaseSql = "INSERT INTO purchase (pur_qty, pur_price, pur_status, prod_id, invoice_id) 
+                                  VALUES ('$quantity', (SELECT prod_price FROM product WHERE prod_id = '$productId'), 'Pending', '$productId', '$invoiceId')";
+            if (!mysqli_query($conn, $insertPurchaseSql)) {
+                die("Error inserting into purchase table: " . mysqli_error($conn));
+            }
+        }
+    }
+}
 ?>
 
 <html>
@@ -31,7 +82,6 @@ mysqli_close($conn);
 </head>
 <body>
     <?php include "components/nav.php"; ?>
-
     <div class="content">
         <div class="container">
             <h1> Mimi's Pet Shop </h1>
@@ -44,18 +94,21 @@ mysqli_close($conn);
             <?php if (!empty($productData)): ?>
                 <div class="product-container">
                     <?php foreach ($productData as $product): ?>
-                        <div class="collapsible" onclick="toggleContent(this)">
-                            <?= $product['prod_name'] ?>
-                        </div>
-                        <div class="content">
-                            <p>Description: <?= $product['prod_desc'] ?></p>
-                            <p>Price: <?= $product['prod_price'] ?></p>
-                            <p>Inventory Quantity: <?= $product['inv_item_qty'] ?></p>
-                            <div class="add-to-cart-container">
-                                <input type="number" id="quantity<?= $product['prod_id'] ?>" value="0">
-                                <button onclick="addToCart('<?= $product['prod_name'] ?>', document.getElementById('quantity<?= $product['prod_id'] ?>').value)">Add to Cart</button>
+                        <form method="POST" action="">
+                            <div class="collapsible">
+                                <?= $product['prod_name'] ?>
                             </div>
-                        </div>
+                            <div class="content">
+                                <p>Description: <?= $product['prod_desc'] ?></p>
+                                <p>Price: <?= $product['prod_price'] ?></p>
+                                <p>Inventory Quantity: <?= $product['inv_item_qty'] ?></p>
+                                <div class="add-to-cart-container">
+                                    <input type="hidden" name="product_id" value="<?= $product['prod_id'] ?>">
+                                    <input type="number" name="quantity" value="0">
+                                    <button type="submit">Add to Cart</button>
+                                </div>
+                            </div>
+                        </form>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
@@ -65,17 +118,5 @@ mysqli_close($conn);
     </div>
 
     <?php include "components/scripts.php"; ?>
-
-    <script>
-        function toggleContent(element) {
-            var content = element.nextElementSibling;
-            content.style.display = (content.style.display === "none" || content.style.display === "") ? "block" : "none";
-        }
-
-        function addToCart(productName, quantity) {
-            // You can add logic here to handle adding the product to the cart
-            alert("Added " + quantity + " units of " + productName + " to the cart!");
-        }
-    </script>
 </body>
 </html>
