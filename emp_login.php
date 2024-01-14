@@ -2,7 +2,7 @@
 session_start();
 
 include("emp_comp/emp_func.php");
-include("emp_comp/emp_conn.php");
+include("components/db.php");
 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (isset($_POST['empUsername']) && isset($_POST['empPassword'])) {

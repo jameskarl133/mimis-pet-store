@@ -14,7 +14,7 @@
             padding: 18px;
             width: 100%;
             border: none;
-            text-align: left;
+            text-align: center;
             outline: none;
             font-size: 15px;
         }
@@ -65,4 +65,26 @@
         a:hover {
             color: #ff6b6b; /* Pastel Red */
         }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .add-to-cart-container {
+            margin-top: 10px;
+        }
+        #searchInput {
+            margin-bottom: 10px;
+        }
+        
     </style>
