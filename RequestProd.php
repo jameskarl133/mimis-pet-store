@@ -31,21 +31,30 @@ function getBrandData($conn, $productId) {
 // Get all products
 $productResult = getAllProducts($conn);
 
-// Handle form submission after the HTML content
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["productName"])) {
-        // Retrieve form data
-        $quantity = $_POST["quantity"];
-        $productId = $_POST["productId"];
-        $productName = $_POST["productName"];
+if (isset($_POST["quantity"]) && isset($_POST["productId"]) && isset($_POST["productName"])) {
+    // Retrieve form data
+    $quantity = $_POST["quantity"];
+    $productId = $_POST["productId"];
+    $productName = $_POST["productName"];
 
-        //Perform your database insertion here
-        $insertQuery = "INSERT INTO requested (request_qty, req_id, prod_id) VALUES ($quantity, $reqId, $productId)";
-        mysqli_query($conn, $insertQuery);
+    $selectProdprice = "SELECT prod_price FROM product WHERE prod_id = $productId";
+    $prod_price_result = mysqli_query($conn, $selectProdprice);
 
-        // Display a confirmation message
-        echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
+    // Check if the query was successful
+    if (!$prod_price_result) {
+        die("Error: " . mysqli_error($conn));
     }
+
+    // Fetch the actual product price from the result set
+    $prod_price_row = mysqli_fetch_assoc($prod_price_result);
+    $prod_price = $prod_price_row['prod_price'];
+
+    // Perform your database insertion here
+    $insertQuery = "INSERT INTO requested (request_qty, request_price, prod_id) VALUES ($quantity, $prod_price, $productId)";
+    mysqli_query($conn, $insertQuery);
+
+    // Display a confirmation message
+    echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
 }
 
 ?>
@@ -112,32 +121,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </div>
     </div>
-    
-    <!-- Modal popup for requesting a product -->
-    <div id="requestModal" class="modal">
-        <h3>Request Product</h3>
-        <form id="requestForm" method="post">
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" name="quantity" required>
-            <input type="hidden" id="productId" name="productId" value="">
-            <input type="hidden" id="productName" name="productName" value="">
-            <button type="submit">Submit Request</button>
-        </form>
-        <button type="button" onclick="closeRequestPopup()">Cancel</button>
-    </div>
-
-    <script>
-        // JavaScript function to open the request popup
-        function openRequestPopup(productId, productName) {
-            document.getElementById('productId').value = productId;
-            document.getElementById('productName').value = productName;
-            document.getElementById('requestModal').style.display = 'block';
-        }
-
-        // JavaScript function to close the request popup
-        function closeRequestPopup() {
-            document.getElementById('requestModal').style.display = 'none';
-        }
-    </script>
 </body>
 </html>

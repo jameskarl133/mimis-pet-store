@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 14, 2024 at 08:07 AM
+-- Generation Time: Jan 14, 2024 at 10:44 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -113,6 +113,7 @@ CREATE TABLE `purchase` (
   `pur_id` int(10) NOT NULL,
   `pur_qty` int(10) NOT NULL,
   `pur_price` double NOT NULL,
+  `pur_status` varchar(255) NOT NULL,
   `invoice_id` int(10) NOT NULL,
   `prod_id` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -126,9 +127,17 @@ CREATE TABLE `purchase` (
 CREATE TABLE `requested` (
   `request_id` int(10) NOT NULL,
   `request_qty` int(10) NOT NULL,
-  `req_id` int(10) NOT NULL,
+  `request_price` double NOT NULL,
+  `req_id` int(10) DEFAULT NULL,
   `prod_id` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `requested`
+--
+
+INSERT INTO `requested` (`request_id`, `request_qty`, `request_price`, `req_id`, `prod_id`) VALUES
+(2, 12, 3550, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -138,7 +147,6 @@ CREATE TABLE `requested` (
 
 CREATE TABLE `requisition` (
   `req_id` int(10) NOT NULL,
-  `req_desc` varchar(255) NOT NULL,
   `req_stat` varchar(255) NOT NULL,
   `emp_id` int(10) NOT NULL,
   `sup_id` int(10) NOT NULL
@@ -178,7 +186,7 @@ ALTER TABLE `employee`
 --
 ALTER TABLE `inventory`
   ADD PRIMARY KEY (`inv_id`),
-  ADD KEY `prod_id` (`prod_id`);
+  ADD UNIQUE KEY `prod_id` (`prod_id`);
 
 --
 -- Indexes for table `invoice`
@@ -268,7 +276,7 @@ ALTER TABLE `purchase`
 -- AUTO_INCREMENT for table `requested`
 --
 ALTER TABLE `requested`
-  MODIFY `request_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `request_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `requisition`
