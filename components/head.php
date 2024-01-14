@@ -14,7 +14,7 @@
             padding: 18px;
             width: 100%;
             border: none;
-            text-align: left;
+            text-align: center;
             outline: none;
             font-size: 15px;
         }
@@ -65,4 +65,23 @@
         a:hover {
             color: #ff6b6b; /* Pastel Red */
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        .add-to-cart-container {
+            margin-top: 10px;
+        }
+        
     </style>
