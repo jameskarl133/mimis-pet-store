@@ -66,22 +66,25 @@
             color: #ff6b6b; /* Pastel Red */
         }
         table {
-            width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            width: 100%;
         }
 
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #dddddd;
+            text-align: left;
             padding: 8px;
-            text-align: center;
         }
 
-        th {
+        tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+
         .add-to-cart-container {
             margin-top: 10px;
+        }
+        #searchInput {
+            margin-bottom: 10px;
         }
         
     </style>

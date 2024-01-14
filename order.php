@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <?php include "components/head.php"; ?>
-</head>
+    </head>
 <body>
     <?php include "components/nav.php"; ?>
     <div class="content">
@@ -96,34 +96,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
     <div class="content">
         <div class="container">
+            <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Search for products...">
+
             <?php if (!empty($productData)): ?>
-                <div class="product-container">
-                    <?php foreach ($productData as $product): ?>
-                        <form method="POST" action="">
-                            <div class="collapsible">
-                                <?= $product['prod_name'] ?>
-                            </div>
-                            <div class="content">
-                                <p>Description: <?= $product['prod_desc'] ?></p>
-                                <p>Price: <?= $product['prod_price'] ?></p>
-                                <p>Inventory Quantity: <?= $product['inv_item_qty'] ?></p>
-                                <div class="add-to-cart-container">
-                                    <input type="hidden" name="product_id" value="<?= $product['prod_id'] ?>">
-                                    <input type="number" name="quantity" value="0">
-                                    <button type="submit">Add to Cart</button>
-                                </div>
-                            </div>
-                        </form>
-                    <?php endforeach; ?>
-                </div>
+                <table id="productTable">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Inventory Quantity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($productData as $product): ?>
+                            <tr>
+                                <td><?= $product['prod_name'] ?></td>
+                                <td><?= $product['prod_desc'] ?></td>
+                                <td><?= $product['prod_price'] ?></td>
+                                <td><?= $product['inv_item_qty'] ?></td>
+                                <td>
+                                    <div class="add-to-cart-container">
+                                        <form method="POST" action="">
+                                            <input type="hidden" name="product_id" value="<?= $product['prod_id'] ?>">
+                                            <input type="number" name="quantity" value="0">
+                                            <button type="submit">Add to Cart</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <script>
+                    function filterProducts() {
+                        var input, filter, table, tr, td, i, txtValue;
+                        input = document.getElementById("searchInput");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("productTable");
+                        tr = table.getElementsByTagName("tr");
+
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByTagName("td")[0]; // Product Name column
+                            if (td) {
+                                txtValue = td.textContent || td.innerText;
+                                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                    tr[i].style.display = "";
+                                } else {
+                                    tr[i].style.display = "none";
+                                }
+                            }
+                        }
+                    }
+                </script>
             <?php else: ?>
                 <p>No products are available.</p>
             <?php endif; ?>
 
             <?php if ($errorMessage): ?>
-                <script>
-                    alert("<?php echo $errorMessage; ?>");
-                </script>
+                <div class="alert">
+                    <?php echo $errorMessage; ?>
+                </div>
             <?php endif; ?>
         </div>
     </div>
