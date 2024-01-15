@@ -36,6 +36,7 @@
                                         <th>Invoice Number</th>
                                         <th>Date of Invoice</th>
                                         <th>Employee ID</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,6 +44,7 @@
                                         <td>{$invoiceData['invoice_id']}</td>
                                         <td>{$invoiceData['invoice_date']}</td>
                                         <td>{$invoiceData['emp_id']}</td>
+                                        <td>{$invoiceData['invoice_status']}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -69,6 +71,7 @@
                 ON purchase.invoice_id = invoice.invoice_id
                 WHERE purchase.invoice_id = '$view_inv_id'";
                 $result_view = $conn->query($view_sql);
+                
                 if($result && $result->num_rows > 0){
                     $invoiceData = $result->fetch_assoc();
                     echo "<div class='container'>  
@@ -78,6 +81,7 @@
                                         <th>Invoice Number</th>
                                         <th>Date of Invoice</th>
                                         <th>Employee ID</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -85,10 +89,16 @@
                                         <td>{$invoiceData['invoice_id']}</td>
                                         <td>{$invoiceData['invoice_date']}</td>
                                         <td>{$invoiceData['emp_id']}</td>
+                                        <td>{$invoiceData['invoice_status']}</td>
                                     </tr>
                                 </tbody>
                             </table>
                           </div>";
+
+                    if ($invoiceData['invoice_status'] === 'cancelled') {
+                        echo "<p class='text-danger'>Invoice is cancelled.</p>";
+                    }
+
                 }
 
                 if ($result_view && $result_view->num_rows > 0) {

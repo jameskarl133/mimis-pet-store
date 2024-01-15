@@ -24,51 +24,79 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $productId = $_POST['product_id'];
         $quantity = $_POST['quantity'];
 
-        $openInvoiceSql = "SELECT * FROM invoice WHERE cus_id = 1 AND invoice_status = 'open'";
-        $openInvoiceResult = mysqli_query($conn, $openInvoiceSql);
+        // Check if the entered quantity is valid
+        $checkInventorySql = "SELECT inv_item_qty FROM inventory WHERE prod_id = '$productId'";
+        $checkInventoryResult = mysqli_query($conn, $checkInventorySql);
 
-        if (!$openInvoiceResult) {
-            die("Error checking open invoice: " . mysqli_error($conn));
+        if (!$checkInventoryResult) {
+            die("Error checking inventory: " . mysqli_error($conn));
         }
 
-        $invoiceId = null;
+        $inventoryRow = mysqli_fetch_assoc($checkInventoryResult);
+        $inventoryQty = $inventoryRow['inv_item_qty'];
 
-        if (mysqli_num_rows($openInvoiceResult) > 0) {
-            $openInvoiceRow = mysqli_fetch_assoc($openInvoiceResult);
-            $invoiceId = $openInvoiceRow['invoice_id'];
+        // Check if the total quantity in the cart exceeds available inventory quantity
+        $totalQuantitySql = "SELECT COALESCE(SUM(pur_qty), 0) as total FROM purchase WHERE prod_id = '$productId' AND pur_status = 'Pending'";
+        $totalQuantityResult = mysqli_query($conn, $totalQuantitySql);
+
+        if (!$totalQuantityResult) {
+            die("Error checking total quantity: " . mysqli_error($conn));
+        }
+
+        $totalQuantityRow = mysqli_fetch_assoc($totalQuantityResult);
+        $totalQuantityInCart = $totalQuantityRow['total'];
+        
+        if (($totalQuantityInCart + $quantity) > $inventoryQty) {
+            $errorMessage = "Error: Total quantity in the cart exceeds available inventory quantity.";
         } else {
-            $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')";
-            if (!mysqli_query($conn, $insertInvoiceSql)) {
-                die("Error creating new invoice: " . mysqli_error($conn));
+            // Proceed with your existing code for handling purchase
+
+            $openInvoiceSql = "SELECT * FROM invoice WHERE cus_id = 1 AND invoice_status = 'open'";
+            $openInvoiceResult = mysqli_query($conn, $openInvoiceSql);
+
+            if (!$openInvoiceResult) {
+                die("Error checking open invoice: " . mysqli_error($conn));
             }
 
-            $invoiceId = mysqli_insert_id($conn);
-        }
+            $invoiceId = null;
 
-        // Check if the same product already exists in the open invoice
-        $checkDuplicateSql = "SELECT * FROM purchase WHERE prod_id = '$productId' AND invoice_id = '$invoiceId'";
-        $checkDuplicateResult = mysqli_query($conn, $checkDuplicateSql);
-
-        if (!$checkDuplicateResult) {
-            die("Error checking duplicate: " . mysqli_error($conn));
-        }
-
-        if (mysqli_num_rows($checkDuplicateResult) > 0) {
-            // If the product already exists, update the quantity instead of creating a new record
-            $updateQuantitySql = "UPDATE purchase SET pur_qty = pur_qty + $quantity WHERE prod_id = '$productId' AND invoice_id = '$invoiceId'";
-            if (!mysqli_query($conn, $updateQuantitySql)) {
-                $errorMessage = "Error updating quantity: " . mysqli_error($conn);
+            if (mysqli_num_rows($openInvoiceResult) > 0) {
+                $openInvoiceRow = mysqli_fetch_assoc($openInvoiceResult);
+                $invoiceId = $openInvoiceRow['invoice_id'];
             } else {
-                $errorMessage = "order quantity updated successfully.";
+                $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')";
+                if (!mysqli_query($conn, $insertInvoiceSql)) {
+                    die("Error creating new invoice: " . mysqli_error($conn));
+                }
+
+                $invoiceId = mysqli_insert_id($conn);
             }
-        } else {
-            // If the product doesn't exist, create a new record
-            $insertPurchaseSql = "INSERT INTO purchase (pur_qty, pur_price, pur_status, prod_id, invoice_id) 
-                                  VALUES ('$quantity', (SELECT prod_price FROM product WHERE prod_id = '$productId'), 'Pending', '$productId', '$invoiceId')";
-            if (!mysqli_query($conn, $insertPurchaseSql)) {
-                $errorMessage = "Error inserting into purchase table: " . mysqli_error($conn);
+
+            // Check if the same product already exists in the open invoice
+            $checkDuplicateSql = "SELECT * FROM purchase WHERE prod_id = '$productId' AND invoice_id = '$invoiceId'";
+            $checkDuplicateResult = mysqli_query($conn, $checkDuplicateSql);
+
+            if (!$checkDuplicateResult) {
+                die("Error checking duplicate: " . mysqli_error($conn));
+            }
+
+            if (mysqli_num_rows($checkDuplicateResult) > 0) {
+                // If the product already exists, update the quantity instead of creating a new record
+                $updateQuantitySql = "UPDATE purchase SET pur_qty = pur_qty + $quantity WHERE prod_id = '$productId' AND invoice_id = '$invoiceId'";
+                if (!mysqli_query($conn, $updateQuantitySql)) {
+                    $errorMessage = "Error updating quantity: " . mysqli_error($conn);
+                } else {
+                    $errorMessage = "order quantity updated successfully.";
+                }
             } else {
-                $errorMessage = "order inserted successfully.";
+                // If the product doesn't exist, create a new record
+                $insertPurchaseSql = "INSERT INTO purchase (pur_qty, pur_price, pur_status, prod_id, invoice_id) 
+                                      VALUES ('$quantity', (SELECT prod_price FROM product WHERE prod_id = '$productId'), 'Pending', '$productId', '$invoiceId')";
+                if (!mysqli_query($conn, $insertPurchaseSql)) {
+                    $errorMessage = "Error inserting into purchase table: " . mysqli_error($conn);
+                } else {
+                    $errorMessage = "order inserted successfully.";
+                }
             }
         }
     }
@@ -210,10 +238,10 @@ if (isset($_POST['cancel'])) {
     <div class="content">
         <div class="container">
             <?php if (!empty($orderDetails)): ?>
-                <h1>Order Details</h1>
+                <p>orderlist</p>
                 <table>
                     <thead>
-                        <tr>
+                        <tr><th>Invoice Id :</th>
                             <th>Product</th>
                             <th>Product Price</th>
                             <th>Quantity</th>
@@ -223,6 +251,7 @@ if (isset($_POST['cancel'])) {
                     <tbody>
                         <?php foreach ($orderDetails as $order): ?>
                             <tr>
+                                <td><?= $order['invoice_id']; ?></td>
                                 <td><?= $order['prod_name']; ?></td>
                                 <td><?= $order['pur_price']; ?></td>
                                 <td><?= $order['pur_qty']; ?></td>
@@ -231,6 +260,7 @@ if (isset($_POST['cancel'])) {
                         <?php endforeach; ?>
                         <tr>
                             <td>Total</td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td>
