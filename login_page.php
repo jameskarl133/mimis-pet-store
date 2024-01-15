@@ -1,6 +1,32 @@
-<?php 
+<?php
 session_start();
+include "components/db.php";
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+
+    $sql = "SELECT * FROM `employee` WHERE `emp_user`='$username'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+
+        if ($password == $row["emp_pass"]) {
+            $_SESSION["username"] = $username;
+            $_SESSION["emp_id"] = $row["emp_id"];
+            $_SESSION["emp_type"] = $row["emp_type"];
+            header("Location: home.php");
+            exit();
+        } else {
+            $login_error = "Invalid password";
+        }
+    } else {
+        $login_error = "User not found";
+    }
+}
+
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">

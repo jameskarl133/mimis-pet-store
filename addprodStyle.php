@@ -36,7 +36,7 @@
         .content {
             text-align: center;
             padding: 20px;
-            color: #fff; /* White text for visibility on pink background */
+            color: black; /* White text for visibility on pink background */
         }
         a:hover {
             color: #ff6b6b; /* Pastel Red */

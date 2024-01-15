@@ -1,7 +1,25 @@
 <?php
 session_start();
 include "components/db.php";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $fullname = $_POST["fullname"];
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+    $employee_type = $_POST["employee_type"];
+
+    $sql = "INSERT INTO `employee`(`emp_name`, `emp_user`, `emp_pass`, `emp_type`) VALUES ('$fullname','$username','$password','$employee_type')";
+    if ($conn->query($sql) === TRUE) {
+        echo "Record added successfully";
+        header("Location: login_page.php");
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+
+    $conn->close();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 include "admin_comp/connection.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

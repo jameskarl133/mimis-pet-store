@@ -5,11 +5,19 @@
       </a>
 
       <ul class="nav nav-pills">
+        <li class="nav-item"><a href="/home.php" class="nav-link">Home</a></li>
+        <?php
+        if($_SESSION["emp_type"]=="Admin")
+        {
+          echo '<li class="nav-item"><a href="/manage_emp.php" class="nav-link">Manage Employee</a></li>';
+        }
+        ?>
         <li class="nav-item"><a href="/add.php"  class="nav-link" aria-current="page">Add Product</a></li>
         <li class="nav-item"><a href="/Supplier.php" class="nav-link">Supplier</a></li>
         <li class="nav-item"><a href="/Update.php" class="nav-link">Update/Search Product</a></li>
         <li class="nav-item"><a href="RequestProd.php" class="nav-link">RequestProd</a></li>
         <li class="nav-item"><a href="Analytics.php" class="nav-link">Analytics</a></li>
         <li class="nav-item"><a href="order.php" class="nav-link">add order</a></li>
+        <li class="nav-item"><a href="/logout.php" class="nav-link">Logout</a></li>
       </ul>
     </header>
