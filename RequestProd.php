@@ -130,8 +130,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
     // Check if there are requested products
     if (mysqli_num_rows($getRequestedResult) > 0) {
         // Perform the database insertion for requisition
-        $insertRequisitionQuery = "INSERT INTO requisition (req_stat, req_date, emp_id, sup_id) VALUES ('Pending', current_timestamp, $empId, $supplierId)";
+        $insertRequisitionQuery = "INSERT INTO requisition (req_stat, req_date, emp_id, sup_id) VALUES ('PENDING', current_timestamp, $empId, $supplierId)";
         $insertRequisitionResult = mysqli_query($conn, $insertRequisitionQuery);
+
+        $lastReqId = mysqli_insert_id($conn);
+
+        // Update the requested products with the corresponding requisition ID
+        $updateRequestedQuery = "UPDATE requested SET req_id = $lastReqId WHERE req_id IS NULL";
+        $updateRequestedResult = mysqli_query($conn, $updateRequestedQuery);
 
         if (!$insertRequisitionResult) {
             die("Error: " . mysqli_error($conn));
@@ -178,26 +184,21 @@ if ($resultEmployee->num_rows > 0) {
     $empId = $rowEmployee['emp_id'];
 
     // Continue building the $insertRequisition SQL statement
-    $insertRequisition = "INSERT INTO requisition (emp_id, sup_id) VALUES ";
-    foreach ($supplierData as $supplier) {
-        $insertRequisition .= "($empId, {$supplier['sup_id']}),";
-    }
-    // Remove the trailing comma
-    $insertRequisition = rtrim($insertRequisition, ',');
+    // $insertRequisition = "INSERT INTO requisition (emp_id, sup_id) VALUES ";
+    // foreach ($supplierData as $supplier) {
+    //     $insertRequisition .= "($empId, {$supplier['sup_id']}),";
+    // }
+    // // Remove the trailing comma
+    // $insertRequisition = rtrim($insertRequisition, ',');
     
     
     // Insert requisitions into the database
-    if ($conn->query($insertRequisition) === TRUE) {
-        echo "Requisitions inserted successfully";
-        $lastReqId = mysqli_insert_id($conn);
+    // if ($conn->query($insertRequisition) === TRUE) {
+    //     echo "Requisitions inserted successfully";
 
-        // Update the requested products with the corresponding requisition ID
-        $updateRequestedQuery = "UPDATE requested SET req_id = $lastReqId WHERE req_id IS NULL";
-        $updateRequestedResult = mysqli_query($conn, $updateRequestedQuery);
-
-    } else {
-        echo "Error inserting requisitions: " . $conn->error;
-    }
+    // } else {
+    //     echo "Error inserting requisitions: " . $conn->error;
+    // }
 } else {
     echo "No employee found to associate with requisition.";
 }
