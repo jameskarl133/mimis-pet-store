@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $emp_id = $_POST['emp_id'];
 
         if (isset($_SESSION['emp_id']) && $_SESSION['emp_id'] == $emp_id) {
-            echo "You cannot delete your own account.";
+            echo "<script>alert('You cannot delete your own account.'); window.location='manage_emp.php';</script>";
             exit();
         }
 

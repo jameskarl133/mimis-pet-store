@@ -45,18 +45,14 @@ function getAllRequestedProducts($conn) {
     return $result;
 }
 
-// Handle form submission for product request
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
-    // Retrieve form data
     $quantity = $_POST["requestQuantity"];
     $productId = $_POST["requestProductId"];
     $productName = $_POST["requestProductName"];
 
-    // Fetch the actual product price from the result set
     $selectProdprice = "SELECT prod_price FROM product WHERE prod_id = $productId";
     $prod_price_result = mysqli_query($conn, $selectProdprice);
 
-    // Check if the query was successful
     if (!$prod_price_result) {
         die("Error: " . mysqli_error($conn));
     }
@@ -64,10 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
     $prod_price_row = mysqli_fetch_assoc($prod_price_result);
     $defaultPrice = $prod_price_row['prod_price'];
 
-    // Check if the price textbox is null
     $finalPrice = isset($_POST["requestPrice"]) && $_POST["requestPrice"] !== '' ? $_POST["requestPrice"] : $defaultPrice;
 
-    // Check if there is an existing request for the same product
     $existingRequestQuery = "SELECT * FROM requested WHERE prod_id = $productId AND req_id IS NULL";
     $existingRequestResult = mysqli_query($conn, $existingRequestQuery);
 
@@ -76,11 +70,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
     }
 
     if (mysqli_num_rows($existingRequestResult) > 0) {
-        // If there is an existing request, update the quantity
         $updateQuery = "UPDATE requested SET request_qty = request_qty + $quantity, request_price = $finalPrice WHERE prod_id = $productId AND req_id IS NULL";
         mysqli_query($conn, $updateQuery);
     } else {
-        // If there is no existing request, insert a new request
         $insertQuery = "INSERT INTO requested (request_qty, request_price, prod_id) VALUES ($quantity, $finalPrice, $productId)";
         mysqli_query($conn, $insertQuery);
     }
