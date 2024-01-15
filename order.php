@@ -64,6 +64,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_num_rows($openInvoiceResult) > 0) {
                 $openInvoiceRow = mysqli_fetch_assoc($openInvoiceResult);
                 $invoiceId = $openInvoiceRow['invoice_id'];
+
+                $employeeIdSql = "SELECT emp_id FROM invoice WHERE invoice_id = '$invoiceId'";
+                $employeeIdResult = mysqli_query($conn, $employeeIdSql);
+                if (!$employeeIdResult) {
+                    die("Error retrieving employee ID: " . mysqli_error($conn));
+                }
+
+                $employeeIdRow = mysqli_fetch_assoc($employeeIdResult);
+                $_SESSION["emp_id"] = $employeeIdRow['emp_id'];
+
             } else {
                 $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')";
                 if (!mysqli_query($conn, $insertInvoiceSql)) {
@@ -71,6 +81,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 $invoiceId = mysqli_insert_id($conn);
+                $employeeIdSql = "SELECT emp_id FROM invoice WHERE invoice_id = '$invoiceId'";
+                $employeeIdResult = mysqli_query($conn, $employeeIdSql);
+
+                if (!$employeeIdResult) {
+                    die("Error retrieving employee ID: " . mysqli_error($conn));
+                }
+
+                $employeeIdRow = mysqli_fetch_assoc($employeeIdResult);
+                $_SESSION["emp_id"] = $employeeIdRow['emp_id'];
             }
 
             // Check if the same product already exists in the open invoice
