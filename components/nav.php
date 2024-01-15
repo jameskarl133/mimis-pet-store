@@ -7,8 +7,7 @@
       <ul class="nav nav-pills">
         <li class="nav-item"><a href="/add.php" class="nav-link">Add product</a></li>
         <li class="nav-item"><a href="/order.php" class="nav-link">Order</a></li>
-        <li class="nav-item"><a href="/orderlist.php" class="nav-link">Cart</a></li>
-        <li class="nav-item"><a href="/searchanddelete.php" class="nav-link">Search Invoice</a></li>
+        <li class="nav-item"><a href="/searchinv.php" class="nav-link">Search Invoice</a></li>
         <li class="nav-item"><a href="/index.php" class="nav-link">Logout</a></li>
       </ul>
     </header>
