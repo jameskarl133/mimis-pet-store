@@ -1,4 +1,5 @@
 <?php
+session_start();
 include "components/db.php";
 
 if ($conn->connect_error) {
