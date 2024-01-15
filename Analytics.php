@@ -1,6 +1,8 @@
 <?php
 // Include your database connection file
 session_start();
+include "header.php";
+include "Style.php";
 /*
 include "components/db.php";
 
