@@ -37,11 +37,11 @@ include "components/db.php";
                     echo "<td>" . $row['emp_status'] . "</td>";
                     echo "<td>" . $row['emp_type'] . "</td>";
                     echo "<td>
-                    <form action='update_emp.php' method='post'>
+                    <form action='update_user.php' method='post'>
                     <input type='hidden' name='emp_id' value='{$row['emp_id']}'>
                     <button class='update' type='submit'>Update</button>
                     </form>
-                    <form action='delete_emp.php' method='post' class='delete-form'>
+                    <form action='delete_user.php' method='post' class='delete-form'>
                     <input type='hidden' name='emp_id' value='{$row['emp_id']}'>
                     <input type='hidden' name='page' value='manage_employee'>
                     <button class='delete' type='submit'>Delete</button>
