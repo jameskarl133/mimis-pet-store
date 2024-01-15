@@ -1,5 +1,6 @@
 <?php
 // Include your database connection file
+session_start();
 include "components/db.php";
 
 // Fetch data from the database

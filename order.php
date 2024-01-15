@@ -1,4 +1,5 @@
 <?php
+session_start();
 include "components/db.php";
 
 $updateSql = "UPDATE inventory SET inv_item_status = 'unavailable' WHERE inv_item_qty = 0";

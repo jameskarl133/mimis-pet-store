@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <html>
     <?php include "components/db.php";?>
 <head>

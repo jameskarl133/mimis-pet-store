@@ -1,4 +1,5 @@
 <?php
+session_start();
 include "components/db.php";
 
 // Function to get all products
@@ -7,30 +8,26 @@ function getAllProducts($conn) {
     $result = mysqli_query($conn, $query);
 
     if (!$result) {
-        // Handle the error, for example, by printing the error message
         die("Error: " . mysqli_error($conn));
     }
 
     return $result;
 }
 
-// Function to get brand data for a product
+
 function getBrandData($conn, $productId) {
     $brand_query = "SELECT prod_brand FROM product WHERE prod_id = $productId";
     $brand_result = mysqli_query($conn, $brand_query);
 
     if (!$brand_result) {
-        // Handle the error, for example, by printing the error message
         die("Error: " . mysqli_error($conn));
     }
 
     return mysqli_fetch_assoc($brand_result);
 }
 
-// Get all products
 $productResult = getAllProducts($conn);
 
-// Function to get all requested products
 function getAllRequestedProducts($conn) {
     $query = "SELECT requested.*, product.prod_name FROM requested
               JOIN product ON requested.prod_id = product.prod_id
@@ -38,25 +35,20 @@ function getAllRequestedProducts($conn) {
     $result = mysqli_query($conn, $query);
 
     if (!$result) {
-        // Handle the error, for example, by printing the error message
         die("Error: " . mysqli_error($conn));
     }
 
     return $result;
 }
 
-// Handle form submission for product request
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
-    // Retrieve form data
     $quantity = $_POST["requestQuantity"];
     $productId = $_POST["requestProductId"];
     $productName = $_POST["requestProductName"];
 
-    // Fetch the actual product price from the result set
     $selectProdprice = "SELECT prod_price FROM product WHERE prod_id = $productId";
     $prod_price_result = mysqli_query($conn, $selectProdprice);
 
-    // Check if the query was successful
     if (!$prod_price_result) {
         die("Error: " . mysqli_error($conn));
     }
@@ -64,10 +56,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
     $prod_price_row = mysqli_fetch_assoc($prod_price_result);
     $defaultPrice = $prod_price_row['prod_price'];
 
-    // Check if the price textbox is null
     $finalPrice = isset($_POST["requestPrice"]) && $_POST["requestPrice"] !== '' ? $_POST["requestPrice"] : $defaultPrice;
 
-    // Check if there is an existing request for the same product
     $existingRequestQuery = "SELECT * FROM requested WHERE prod_id = $productId AND req_id IS NULL";
     $existingRequestResult = mysqli_query($conn, $existingRequestQuery);
 
@@ -76,32 +66,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
     }
 
     if (mysqli_num_rows($existingRequestResult) > 0) {
-        // If there is an existing request, update the quantity
         $updateQuery = "UPDATE requested SET request_qty = request_qty + $quantity, request_price = $finalPrice WHERE prod_id = $productId AND req_id IS NULL";
         mysqli_query($conn, $updateQuery);
     } else {
-        // If there is no existing request, insert a new request
         $insertQuery = "INSERT INTO requested (request_qty, request_price, prod_id) VALUES ($quantity, $finalPrice, $productId)";
         mysqli_query($conn, $insertQuery);
     }
 
-    // Display a confirmation message
     echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
 }
 
-// Fetch all requested products
 $requestedProducts = getAllRequestedProducts($conn);
 
-// Handle removal of requested product
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["removeReqId"])) {
     $removeReqId = $_POST["removeReqId"];
 
-    // Check if $removeReqId is a valid integer
     if (!is_numeric($removeReqId) || $removeReqId <= 0) {
         die("Invalid request ID");
     }
 
-    // Perform your database deletion here based on $removeReqId
     $deleteQuery = "DELETE FROM requested WHERE request_id = " . mysqli_real_escape_string($conn, $removeReqId);
     $deleteResult = mysqli_query($conn, $deleteQuery);
 
@@ -109,7 +92,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["removeReqId"])) {
         die("Error: " . mysqli_error($conn));
     }
 
-    // Redirect to the same page to reflect changes
     header("Location: {$_SERVER['PHP_SELF']}");
     exit();
 }
