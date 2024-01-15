@@ -77,10 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
 
     if (mysqli_num_rows($existingRequestResult) > 0) {
         // If there is an existing request, update the quantity
-        $existingRequestRow = mysqli_fetch_assoc($existingRequestResult);
-        $newQuantity = $existingRequestRow['request_qty'] + $quantity;
-
-        $updateQuery = "UPDATE requested SET request_qty = $newQuantity, request_price = $finalPrice WHERE prod_id = $productId AND req_id IS NULL";
+        $updateQuery = "UPDATE requested SET request_qty = request_qty + $quantity, request_price = $finalPrice WHERE prod_id = $productId AND req_id IS NULL";
         mysqli_query($conn, $updateQuery);
     } else {
         // If there is no existing request, insert a new request
@@ -141,12 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
         }
 
         // Get the last inserted req_id
-        $lastReqId = mysqli_insert_id($conn);
-
-        // Update the requested products with the corresponding requisition ID
-        $updateRequestedQuery = "UPDATE requested SET req_id = $lastReqId WHERE req_id IS NULL";
-        $updateRequestedResult = mysqli_query($conn, $updateRequestedQuery);
-
+        
         if (!$updateRequestedResult) {
             die("Error: " . mysqli_error($conn));
         }
@@ -158,6 +150,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
         echo "No requested products to confirm.";
     }
 }
+
+$sqlSuppliers = "SELECT sup_id, sup_name FROM supplier";
+$resultSuppliers = $conn->query($sqlSuppliers);
+
+// Check if there are results
+if ($resultSuppliers->num_rows > 0) {
+    // Create an array to store supplier data
+    $supplierData = array();
+
+    // Fetch each supplier ID and name and store it in the array
+    while ($rowSupplier = $resultSuppliers->fetch_assoc()) {
+        $supplierData[] = $rowSupplier;
+    }
+} else {
+    // Handle the case when there are no suppliers
+    $supplierData = array();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submitRequest"])) {
+    // Fetch a valid emp_id from the employee table (you may need to modify this based on your logic)
+    $sqlEmployee = "SELECT emp_id FROM employee LIMIT 1";
+    $resultEmployee = $conn->query($sqlEmployee);
+
+if ($resultEmployee->num_rows > 0) {
+    $rowEmployee = $resultEmployee->fetch_assoc();
+    $empId = $rowEmployee['emp_id'];
+
+    // Continue building the $insertRequisition SQL statement
+    $insertRequisition = "INSERT INTO requisition (emp_id, sup_id) VALUES ";
+    foreach ($supplierData as $supplier) {
+        $insertRequisition .= "($empId, {$supplier['sup_id']}),";
+    }
+    // Remove the trailing comma
+    $insertRequisition = rtrim($insertRequisition, ',');
+    
+    
+    // Insert requisitions into the database
+    if ($conn->query($insertRequisition) === TRUE) {
+        echo "Requisitions inserted successfully";
+        $lastReqId = mysqli_insert_id($conn);
+
+        // Update the requested products with the corresponding requisition ID
+        $updateRequestedQuery = "UPDATE requested SET req_id = $lastReqId WHERE req_id IS NULL";
+        $updateRequestedResult = mysqli_query($conn, $updateRequestedQuery);
+
+    } else {
+        echo "Error inserting requisitions: " . $conn->error;
+    }
+} else {
+    echo "No employee found to associate with requisition.";
+}
+
+
+}
+
+
+
 ?>
 
 <html>
@@ -225,7 +274,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
 
             <input type="hidden" id="requestProductId" name="requestProductId" value="">
             <input type="hidden" id="requestProductName" name="requestProductName" value="">
-            <button type="submit">Submit Request</button>
+            <button type="submit" name="submitRequest">Submit Request</button>
             <button type="button" onclick="hideRequestForm()">Cancel</button>
         </form>
         </div>

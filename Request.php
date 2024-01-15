@@ -8,8 +8,8 @@ if ($conn->connect_error) {
 // Fetch supplier IDs and names from the supplier table
 $sqlSuppliers = "SELECT sup_id, sup_name FROM supplier";
 $resultSuppliers = $conn->query($sqlSuppliers);
-
 // Check if there are results
+
 if ($resultSuppliers->num_rows > 0) {
     // Create an array to store supplier data
     $supplierData = array();
@@ -21,32 +21,6 @@ if ($resultSuppliers->num_rows > 0) {
 } else {
     // Handle the case when there are no suppliers
     $supplierData = array();
-}
-
-// Fetch a valid emp_id from the employee table (you may need to modify this based on your logic)
-$sqlEmployee = "SELECT emp_id FROM employee LIMIT 1";
-$resultEmployee = $conn->query($sqlEmployee);
-
-if ($resultEmployee->num_rows > 0) {
-    $rowEmployee = $resultEmployee->fetch_assoc();
-    $empId = $rowEmployee['emp_id'];
-
-    // Continue building the $insertRequisition SQL statement
-    $insertRequisition = "INSERT INTO requisition (emp_id, sup_id) VALUES ";
-    foreach ($supplierData as $supplier) {
-        $insertRequisition .= "($empId, {$supplier['sup_id']}),";
-    }
-    // Remove the trailing comma
-    $insertRequisition = rtrim($insertRequisition, ',');
-
-    // Insert requisitions into the database
-    if ($conn->query($insertRequisition) === TRUE) {
-        echo "Requisitions inserted successfully";
-    } else {
-        echo "Error inserting requisitions: " . $conn->error;
-    }
-} else {
-    echo "No employee found to associate with requisition.";
 }
 ?>
 
