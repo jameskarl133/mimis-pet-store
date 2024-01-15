@@ -27,7 +27,6 @@ function getBrandData($conn, $productId) {
     return mysqli_fetch_assoc($brand_result);
 }
 
-
 // Get all products
 $productResult = getAllProducts($conn);
 
@@ -45,8 +44,6 @@ function getAllRequestedProducts($conn) {
 
     return $result;
 }
-
-
 
 // Handle form submission for product request
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
@@ -94,6 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["requestQuantity"])) {
     // Display a confirmation message
     echo "<script>alert('Product Requested\\nProduct ID: $productId\\nProduct Name: $productName\\nQuantity: $quantity');</script>";
 }
+
 // Fetch all requested products
 $requestedProducts = getAllRequestedProducts($conn);
 
@@ -119,57 +117,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["removeReqId"])) {
     exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
-    $confirmReqId = $_POST["confirmReqId"];
-    $supplierId = $_POST["supplierId"];
-    $empId = 1; // You mentioned inserting emp_id as 1
-
-    // Perform the database insertion for requisition
-    $insertRequisitionQuery = "INSERT INTO requisition (req_id, req_stat, req_date, emp_id, sup_id) VALUES ($confirmReqId, 'Pending', current_timestamp, $empId, $supplierId)";
-    $insertRequisitionResult = mysqli_query($conn, $insertRequisitionQuery);
-
-    if (!$insertRequisitionResult) {
-        die("Error: " . mysqli_error($conn));
-    }
-
-    // Redirect to the same page to reflect changes
-    header("Location: {$_SERVER['PHP_SELF']}");
-    exit();
-}
-
 // Handle confirmation of requested product
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
-    $confirmReqId = $_POST["confirmReqId"];
     $supplierId = $_POST["supplierId"];
     $empId = 1; // You mentioned inserting emp_id as 1
 
-    // Perform the database insertion for requisition
-    $insertRequisitionQuery = "INSERT INTO requisition (req_stat, req_date, emp_id, sup_id) VALUES ('Pending', current_timestamp, $empId, $supplierId)";
-    $insertRequisitionResult = mysqli_query($conn, $insertRequisitionQuery);
+    // Fetch requested products with req_id as null
+    $getRequestedQuery = "SELECT * FROM requested WHERE req_id IS NULL";
+    $getRequestedResult = mysqli_query($conn, $getRequestedQuery);
 
-    if (!$insertRequisitionResult) {
+    if (!$getRequestedResult) {
         die("Error: " . mysqli_error($conn));
     }
 
-    // Get the last inserted req_id
-    $lastReqId = mysqli_insert_id($conn);
+    // Check if there are requested products
+    if (mysqli_num_rows($getRequestedResult) > 0) {
+        // Perform the database insertion for requisition
+        $insertRequisitionQuery = "INSERT INTO requisition (req_stat, req_date, emp_id, sup_id) VALUES ('Pending', current_timestamp, $empId, $supplierId)";
+        $insertRequisitionResult = mysqli_query($conn, $insertRequisitionQuery);
 
-    // Update the requested products with the corresponding requisition ID
-    $updateRequestedQuery = "UPDATE requested SET req_id = $lastReqId WHERE req_id IS NULL";
-    $updateRequestedResult = mysqli_query($conn, $updateRequestedQuery);
+        if (!$insertRequisitionResult) {
+            die("Error: " . mysqli_error($conn));
+        }
 
-    if (!$updateRequestedResult) {
-        die("Error: " . mysqli_error($conn));
+        // Get the last inserted req_id
+        $lastReqId = mysqli_insert_id($conn);
+
+        // Update the requested products with the corresponding requisition ID
+        $updateRequestedQuery = "UPDATE requested SET req_id = $lastReqId WHERE req_id IS NULL";
+        $updateRequestedResult = mysqli_query($conn, $updateRequestedQuery);
+
+        if (!$updateRequestedResult) {
+            die("Error: " . mysqli_error($conn));
+        }
+
+        // Redirect to the same page to reflect changes
+        header("Location: {$_SERVER['PHP_SELF']}");
+        exit();
+    } else {
+        echo "No requested products to confirm.";
     }
-
-    // Redirect to the same page to reflect changes
-    header("Location: {$_SERVER['PHP_SELF']}");
-    exit();
 }
-
 ?>
-
-
 
 <html>
 <head>
@@ -273,9 +262,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
             ?>
         </table>
         <form method="post" action="">
-    <label for="confirmReqId">Enter Request ID to Confirm: </label>
-    <input type="number" id="confirmReqId" name="confirmReqId" required>
-
     <!-- Dropdown for selecting a supplier -->
     <label for="supplierId">Select Supplier: </label>
     <select id="supplierId" name="supplierId" required>

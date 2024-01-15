@@ -1,4 +1,4 @@
-<?php 
+<?php
 include "components/db.php";
 
 if ($conn->connect_error) {
@@ -23,6 +23,31 @@ if ($resultSuppliers->num_rows > 0) {
     $supplierData = array();
 }
 
+// Fetch a valid emp_id from the employee table (you may need to modify this based on your logic)
+$sqlEmployee = "SELECT emp_id FROM employee LIMIT 1";
+$resultEmployee = $conn->query($sqlEmployee);
+
+if ($resultEmployee->num_rows > 0) {
+    $rowEmployee = $resultEmployee->fetch_assoc();
+    $empId = $rowEmployee['emp_id'];
+
+    // Continue building the $insertRequisition SQL statement
+    $insertRequisition = "INSERT INTO requisition (emp_id, sup_id) VALUES ";
+    foreach ($supplierData as $supplier) {
+        $insertRequisition .= "($empId, {$supplier['sup_id']}),";
+    }
+    // Remove the trailing comma
+    $insertRequisition = rtrim($insertRequisition, ',');
+
+    // Insert requisitions into the database
+    if ($conn->query($insertRequisition) === TRUE) {
+        echo "Requisitions inserted successfully";
+    } else {
+        echo "Error inserting requisitions: " . $conn->error;
+    }
+} else {
+    echo "No employee found to associate with requisition.";
+}
 ?>
 
 <html>
@@ -39,55 +64,54 @@ if ($resultSuppliers->num_rows > 0) {
     </div>
 
     <form action="" method="post">
-    <div class="content">
-        <div class="container">
-            <h2>Requisition Table</h2>
+        <div class="content">
+            <div class="container">
+                <h2>Requisition Table</h2>
 
-            <table border="1">
-                <tr>
-                    <th>Requisition ID</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Employee ID</th>
-                    <th>Supplier Name</th>
-                </tr>
+                <table border="1">
+                    <tr>
+                        <th>Requisition ID</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Employee ID</th>
+                        <th>Supplier Name</th>
+                    </tr>
 
-                <?php
-                // Fetch requisition records
-                $sqlRequisitions = "SELECT * FROM requisition";
-                $resultRequisitions = $conn->query($sqlRequisitions);
+                    <?php
+                    // Fetch requisition records
+                    $sqlRequisitions = "SELECT * FROM requisition";
+                    $resultRequisitions = $conn->query($sqlRequisitions);
 
-                if ($resultRequisitions->num_rows > 0) {
-                    while ($rowRequisition = $resultRequisitions->fetch_assoc()) {
-                        // Output requisition data
-                        echo "<tr>";
-                        echo "<td>{$rowRequisition['req_id']}</td>";
-                        echo "<td>{$rowRequisition['req_status']}</td>";
-                        echo "<td>{$rowRequisition['req_date']}</td>";
-                        echo "<td>{$rowRequisition['emp_id']}</td>";
+                    if ($resultRequisitions->num_rows > 0) {
+                        while ($rowRequisition = $resultRequisitions->fetch_assoc()) {
+                            // Output requisition data
+                            echo "<tr>";
+                            echo "<td>{$rowRequisition['req_id']}</td>";
+                            echo "<td>{$rowRequisition['req_stat']}</td>"; // This assumes req_stat has a default value
+                            echo "<td>{$rowRequisition['req_date']}</td>";
+                            echo "<td>{$rowRequisition['emp_id']}</td>";
 
-                        // Fetch supplier name based on sup_id
-                        $supId = $rowRequisition['sup_id'];
-                        $supplierName = "N/A";
+                            // Fetch supplier name based on sup_id
+                            $supId = $rowRequisition['sup_id'];
+                            $supplierName = "N/A";
 
-                        foreach ($supplierData as $supplier) {
-                            if ($supplier['sup_id'] == $supId) {
-                                $supplierName = $supplier['sup_name'];
-                                break;
+                            foreach ($supplierData as $supplier) {
+                                if ($supplier['sup_id'] == $supId) {
+                                    $supplierName = $supplier['sup_name'];
+                                    break;
+                                }
                             }
+
+                            echo "<td>$supplierName</td>";
+                            echo "</tr>";
                         }
-
-                        echo "<td>$supplierName</td>";
-                        echo "</tr>";
+                    } else {
+                        echo "<tr><td colspan='5'>No requisitions found</td></tr>";
                     }
-                } else {
-                    echo "<tr><td colspan='5'>No requisitions found</td></tr>";
-                }
-                ?>
-            </table>
+                    ?>
+                </table>
+            </div>
         </div>
-    </div>
-</form>
-
+    </form>
 </body>
 </html>
