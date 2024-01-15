@@ -175,6 +175,7 @@ if ($resultSuppliers->num_rows > 0) {
             document.getElementById("req_id").value = reqId;
             document.forms[0].submit();
         }
+        <?php include "Script.php"; ?>
     </script>
 </body>
 </html>

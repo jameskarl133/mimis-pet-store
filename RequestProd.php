@@ -284,7 +284,7 @@ if ($resultEmployee->num_rows > 0) {
     <!-- Display Requested Products -->
     <div class="content">
     <div class="container">
-        <h2>Requested Products</h2>
+        <h2>Purchase Order</h2>
         <table>
             <tr>
                 <th>Request ID</th>
@@ -370,6 +370,7 @@ if ($resultEmployee->num_rows > 0) {
         function removeProduct(reqId) {
         alert('Removing product with req_id: ' + reqId);
         }
+
     </script>
 </body>
 </html>
