@@ -29,8 +29,6 @@
             
                 if($result && $result->num_rows > 0){
                     $invoiceData = $result->fetch_assoc();
-            
-                    // Display the information in a table
                     echo "<div class='container'>  
                             <table class='table table-bordered text-center'>
                                 <thead>
@@ -103,24 +101,36 @@
                                         <th>Order quantity</th>
                                         <th>Order price</th>
                                         <th>Date of Invoice</th>
+                                        <th>Total Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>";
+                                $totalSum = 0;
 
-                    foreach ($result_view as $row) {
-                        echo "<tr>
-                                <td>{$row['pur_id']}</td>
-                                <td>{$row['pur_qty']}</td>
-                                <td>{$row['pur_price']}</td>
-                                <td>{$row['invoice_date']}</td>
-                              </tr>";
-                    }
+                                foreach ($result_view as $row) {
+                                    $totalPrice = $row['pur_qty'] * $row['pur_price'];
+                                    $totalSum += $totalPrice;
+                                
+                                    echo "<tr>
+                                            <td>{$row['pur_id']}</td>
+                                            <td>{$row['pur_qty']}</td>
+                                            <td>{$row['pur_price']}</td>
+                                            <td>{$row['invoice_date']}</td>
+                                            <td>{$totalPrice}</td>
+                                          </tr>";
+                                }
+                                
+                                echo "<tr>
+                                        <td colspan='4'>Total:</td>
+                                        <td>{$totalSum}</td>
+                                      </tr>";
+                                
 
                     echo "</tbody>
                           </table>
                           </div>";
                 } else {
-                    echo "<p>No order list found for the specified invoice ID.</p>";
+                    echo "<p>No purchases found for the specified invoice ID.</p>";
                 }
             }
             ?>

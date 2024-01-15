@@ -1,37 +1,30 @@
 <?php
 include "components/db.php";
 
-// Update inventory status to 'unavailable' when inv_item_qty is 0
 $updateSql = "UPDATE inventory SET inv_item_status = 'unavailable' WHERE inv_item_qty = 0";
 mysqli_query($conn, $updateSql);
 
-// Fetch products with inventory quantity > 0
 $sql = "SELECT * FROM product
         INNER JOIN inventory ON product.prod_id = inventory.prod_id
         WHERE inventory.inv_item_status = 'available'";
 $result = mysqli_query($conn, $sql);
 
-// Initialize an array to store product data
 $productData = array();
 
 if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Store each row in the array
         $productData[] = $row;
     }
 }
 
-// Initialize variables
 $errorMessage = "";
 
-// Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
         $productId = $_POST['product_id'];
         $quantity = $_POST['quantity'];
 
-        // Check if there is an open invoice for the current user
-        $openInvoiceSql = "SELECT * FROM invoice WHERE cus_id = 1 AND invoice_status = 'open'"; // Replace 1 with the actual cus_id
+        $openInvoiceSql = "SELECT * FROM invoice WHERE cus_id = 1 AND invoice_status = 'open'";
         $openInvoiceResult = mysqli_query($conn, $openInvoiceSql);
 
         if (!$openInvoiceResult) {
@@ -41,12 +34,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $invoiceId = null;
 
         if (mysqli_num_rows($openInvoiceResult) > 0) {
-            // If there is an open invoice, use its ID
             $openInvoiceRow = mysqli_fetch_assoc($openInvoiceResult);
             $invoiceId = $openInvoiceRow['invoice_id'];
         } else {
-            // If there is no open invoice, create a new one
-            $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')"; // Replace 1 with the actual cus_id
+            $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')";
             if (!mysqli_query($conn, $insertInvoiceSql)) {
                 die("Error creating new invoice: " . mysqli_error($conn));
             }
@@ -54,27 +45,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $invoiceId = mysqli_insert_id($conn);
         }
 
-        // Check if pur_qty is greater than inv_qty_item
-        $checkInventorySql = "SELECT inv_item_qty FROM inventory WHERE prod_id = '$productId'";
-        $checkInventoryResult = mysqli_query($conn, $checkInventorySql);
+        // Check if the same product already exists in the open invoice
+        $checkDuplicateSql = "SELECT * FROM purchase WHERE prod_id = '$productId' AND invoice_id = '$invoiceId'";
+        $checkDuplicateResult = mysqli_query($conn, $checkDuplicateSql);
 
-        if (!$checkInventoryResult) {
-            die("Error checking inventory: " . mysqli_error($conn));
+        if (!$checkDuplicateResult) {
+            die("Error checking duplicate: " . mysqli_error($conn));
         }
 
-        $inventoryRow = mysqli_fetch_assoc($checkInventoryResult);
-        $inventoryQty = $inventoryRow['inv_item_qty'];
-
-        if ($quantity > $inventoryQty) {
-            $errorMessage = "Error: Purchase quantity exceeds available inventory quantity.";
+        if (mysqli_num_rows($checkDuplicateResult) > 0) {
+            // If the product already exists, update the quantity instead of creating a new record
+            $updateQuantitySql = "UPDATE purchase SET pur_qty = pur_qty + $quantity WHERE prod_id = '$productId' AND invoice_id = '$invoiceId'";
+            if (!mysqli_query($conn, $updateQuantitySql)) {
+                $errorMessage = "Error updating quantity: " . mysqli_error($conn);
+            } else {
+                $errorMessage = "order quantity updated successfully.";
+            }
         } else {
-            // Insert data into the purchase table with the generated invoice ID
+            // If the product doesn't exist, create a new record
             $insertPurchaseSql = "INSERT INTO purchase (pur_qty, pur_price, pur_status, prod_id, invoice_id) 
                                   VALUES ('$quantity', (SELECT prod_price FROM product WHERE prod_id = '$productId'), 'Pending', '$productId', '$invoiceId')";
             if (!mysqli_query($conn, $insertPurchaseSql)) {
                 $errorMessage = "Error inserting into purchase table: " . mysqli_error($conn);
             } else {
-                $errorMessage = "Data inserted successfully.";
+                $errorMessage = "order inserted successfully.";
             }
         }
     }
@@ -83,57 +77,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php
 include "components/db.php";
 
-// Fetch order details from the purchase table using the generated invoice_id
 $sql = "SELECT p.*, pr.prod_name FROM purchase p
         INNER JOIN product pr ON p.prod_id = pr.prod_id
         WHERE p.pur_status = 'Pending'";
 $result = mysqli_query($conn, $sql);
 
-// Initialize an array to store order details
+
 $orderDetails = array();
 
 if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Store each row in the array
         $orderDetails[] = $row;
     }
 }
 
-// Check if the checkout button is pressed
+
 if (isset($_POST['checkout'])) {
-    // Start a transaction to ensure atomic operations
+
     mysqli_begin_transaction($conn);
 
     try {
-        // Update the purchase table and set status to 'done'
+
         $updatePurchaseSql = "UPDATE purchase SET pur_status = 'done' WHERE pur_status = 'Pending'";
         mysqli_query($conn, $updatePurchaseSql);
 
-        // Update invoice status to 'closed'
         $updateInvoiceSql = "UPDATE invoice SET invoice_status = 'closed' WHERE invoice_status = 'open'";
         mysqli_query($conn, $updateInvoiceSql);
 
-        // Update inventory quantities
         foreach ($orderDetails as $order) {
             $productId = $order['prod_id'];
             $purQty = $order['pur_qty'];
 
-            // Subtract pur_qty from inv_item_qty
             $updateInventorySql = "UPDATE inventory SET inv_item_qty = inv_item_qty - $purQty WHERE prod_id = $productId";
             mysqli_query($conn, $updateInventorySql);
         }
 
-        // Commit the transaction
         mysqli_commit($conn);
     } catch (Exception $e) {
-        // Rollback the transaction on error
         mysqli_rollback($conn);
         echo "Transaction failed: " . $e->getMessage();
     }
 }
 if (isset($_POST['cancel'])) {
-    // Start a transaction to ensure atomic operations
-        // Update the purchase table and set status to 'done'
         $cancelPurchaseSql = "UPDATE purchase SET pur_status = 'cancelled' WHERE pur_status = 'Pending'";
         mysqli_query($conn, $cancelPurchaseSql);
         $cancelInvoiceSql = "UPDATE invoice SET invoice_status = 'cancelled' WHERE invoice_status = 'open'";
@@ -166,7 +151,7 @@ if (isset($_POST['cancel'])) {
                             <th>Description</th>
                             <th>Price</th>
                             <th>Inventory Quantity</th>
-                            <th>Action</th>
+                            <th>Input Quantity</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -199,7 +184,7 @@ if (isset($_POST['cancel'])) {
                         tr = table.getElementsByTagName("tr");
 
                         for (i = 0; i < tr.length; i++) {
-                            td = tr[i].getElementsByTagName("td")[0]; // Product Name column
+                            td = tr[i].getElementsByTagName("td")[0];
                             if (td) {
                                 txtValue = td.textContent || td.innerText;
                                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
