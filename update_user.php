@@ -1,7 +1,3 @@
-<?php
-session_start();
-include("components/db.php")
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -72,31 +68,78 @@ include("components/db.php")
 <body>
     
 
-    <form action="update_user.php" method="post">
-    <div class="image-container">
-        <img src="pics/mimis_logo.jpg" alt="Logo">
-    </div>
-        <h2>Update Employee</h2>
-        <input type="hidden" name="emp_id" value="<?php echo $emp_id; ?>">
+<?php
+session_start();
+include("components/db.php");
 
-        <label for="emp_name">Employee Name:</label>
-        <input type="text" name="emp_name" value="<?php echo $emp_name; ?>" required>
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $emp_id = mysqli_real_escape_string($conn, $_POST['emp_id']);
 
-        <label for="emp_user">Employee User:</label>
-        <input type="text" name="emp_user" value="<?php echo $emp_user; ?>" required>
+    $query = "SELECT * FROM employee WHERE emp_id = '$emp_id'";
+    $result = mysqli_query($conn, $query);
 
-        <label for="emp_status">Employee Status:</label>
-        <input type="text" name="emp_status" value="<?php echo $emp_status; ?>" required>
+    if ($result) {
+        if (mysqli_num_rows($result) == 1) {
+            $row = mysqli_fetch_assoc($result);
 
-        <label for="emp_type">Employee Type:</label>
-        <select name="emp_type" required>
-            <option value="Admin" <?php echo ($emp_type == 'Admin') ? 'selected' : ''; ?>>Admin</option>
-            <option value="Employee" <?php echo ($emp_type == 'Employee') ? 'selected' : ''; ?>>Employee</option>
-        </select>
+            echo "<form action='update_user.php' method='post'>
+                    <div class='image-container'>
+                        <img src='pics/mimis_logo.jpg' alt='Logo'>
+                    </div>
+                    <h2>Update Employee</h2>
+                    <input type='hidden' name='emp_id' value='{$row['emp_id']}'>
+                    
+                    <label for='emp_name'>Employee Name:</label>
+                    <input type='text' name='emp_name' value='{$row['emp_name']}' required>
 
-        <button type="submit">Update</button>
-        <a href="manage_emp.php"><button type="button" class="cancel">Cancel</button></a>
-    </form>
+                    <label for='emp_user'>Employee User:</label>
+                    <input type='text' name='emp_user' value='{$row['emp_user']}' required>
+
+                    <label for='emp_status'>Employee Status:</label>
+                    <input type='text' name='emp_status' value='{$row['emp_status']}' required>
+
+                    <label for='emp_type'>Employee Type:</label>
+                    <select name='emp_type' required>
+                        <option value='Admin' " . ($row['emp_type'] == 'Admin' ? 'selected' : '') . ">Admin</option>
+                        <option value='Employee' " . ($row['emp_type'] == 'Employee' ? 'selected' : '') . ">Employee</option>
+                    </select>
+
+                    <button type='submit' name='update_employee'>Update</button>
+                    <a href='manage_emp.php'><button type='button' class='cancel'>Cancel</button></a>
+                </form>";
+        } else {
+            echo "Employee not found.";
+        }
+    } else {
+        echo "Error fetching employee data.";
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_employee'])) {
+    $emp_id = mysqli_real_escape_string($conn, $_POST['emp_id']);
+    $emp_name = mysqli_real_escape_string($conn, $_POST['emp_name']);
+    $emp_user = mysqli_real_escape_string($conn, $_POST['emp_user']);
+    $emp_status = mysqli_real_escape_string($conn, $_POST['emp_status']);
+    $emp_type = mysqli_real_escape_string($conn, $_POST['emp_type']);
+
+    $update_query = "UPDATE employee SET 
+                    emp_name = '$emp_name',
+                    emp_user = '$emp_user',
+                    emp_status = '$emp_status',
+                    emp_type = '$emp_type'
+                    WHERE emp_id = '$emp_id'";
+
+    $update_result = mysqli_query($conn, $update_query);
+
+    if ($update_result) {
+        header("Location: manage_emp.php");
+        exit();
+    } else {
+        echo "Error updating employee details.";
+    }
+}
+?>
+
 </body>
 </html>
 
