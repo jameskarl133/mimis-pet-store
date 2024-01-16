@@ -135,8 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
         if (!$insertRequisitionResult) {
             die("Error: " . mysqli_error($conn));
         }
-
-        // Get the last inserted req_id
         
         if (!$updateRequestedResult) {
             die("Error: " . mysqli_error($conn));
