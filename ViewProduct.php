@@ -8,7 +8,8 @@ function getAllProductsWithInventoryStatus($conn, $search = "") {
 
     // Add search condition if provided
     if (!empty($search)) {
-        $query .= " WHERE product.prod_name LIKE '%$search%'";
+        $searchTerm = mysqli_real_escape_string($conn, $search);
+        $query .= " WHERE product.prod_name LIKE '%$searchTerm%'";
     }
 
     $result = mysqli_query($conn, $query);
@@ -39,7 +40,7 @@ $productResultWithStatus = getAllProductsWithInventoryStatus($conn, $searchTerm)
             <!-- Search Box -->
             <form action="" method="post">
                 <label for="search">Search Product:</label>
-                <input type="text" id="search" name="search" placeholder="Type to search" oninput="this.form.submit()" value="<?php echo $searchTerm; ?>">
+                <input type="text" id="search" name="search" placeholder="Type to search" oninput="searchProducts()" value="<?php echo htmlspecialchars($searchTerm, ENT_QUOTES, 'UTF-8'); ?>">
             </form>
             <br>
 
@@ -69,5 +70,29 @@ $productResultWithStatus = getAllProductsWithInventoryStatus($conn, $searchTerm)
             </table>
         </div>
     </div>
+    <script>
+    function searchProducts() {
+        let input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.querySelector("table");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            // Skip the header row
+            if (i === 0) continue;
+
+            let found = false;
+            for (td of tr[i].getElementsByTagName("td")) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+            tr[i].style.display = found ? "" : "none";
+        }
+    }
+</script>
 </body>
 </html>
