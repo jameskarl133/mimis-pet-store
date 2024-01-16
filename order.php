@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // Proceed with your existing code for handling purchase
 
-            $openInvoiceSql = "SELECT * FROM invoice WHERE cus_id = 1 AND invoice_status = 'open'";
+            $openInvoiceSql = "SELECT * FROM invoice WHERE invoice_status = 'open'";
             $openInvoiceResult = mysqli_query($conn, $openInvoiceSql);
 
             if (!$openInvoiceResult) {
@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["emp_id"] = $employeeIdRow['emp_id'];
 
                 // Now you can use $employeeIdResult in the INSERT query
-                $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES ('$employeeIdRow[emp_id]', 1, NOW(), 'open')";
+                $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES ('$employeeIdRow[emp_id]', (SELECT MAX(cus_id) FROM customer), NOW(), 'open')";
                 if (!mysqli_query($conn, $insertInvoiceSql)) {
                     die("Error creating new invoice: " . mysqli_error($conn));
                 }
@@ -154,6 +154,9 @@ if (isset($_POST['checkout'])) {
 
         $updateInvoiceSql = "UPDATE invoice SET invoice_status = 'closed' WHERE invoice_status = 'open'";
         mysqli_query($conn, $updateInvoiceSql);
+
+        $newcustomersql = "INSERT INTO CUSTOMER VALUES ('','','')";
+        mysqli_query($conn, $newcustomersql);
 
         foreach ($orderDetails as $order) {
             $productId = $order['prod_id'];

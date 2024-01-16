@@ -35,21 +35,23 @@ session_start();
                     $invoiceData = $result->fetch_assoc();
                     echo "<div class='container'>  
                             <table class='table table-bordered text-center'>
-                                <thead>
-                                    <tr class='bg-dark text-white'>
-                                        <th>Invoice Number</th>
-                                        <th>Date of Invoice</th>
-                                        <th>Employee ID</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{$invoiceData['invoice_id']}</td>
-                                        <td>{$invoiceData['invoice_date']}</td>
-                                        <td>{$invoiceData['emp_id']}</td>
-                                        <td>{$invoiceData['invoice_status']}</td>
-                                    </tr>
+                            <thead>
+                            <tr class='bg-dark text-white'>
+                                <th>Invoice Number</th>
+                                <th>Date of Invoice</th>
+                                <th>Employee ID</th>
+                                <th>Customer ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{$invoiceData['invoice_id']}</td>
+                                <td>{$invoiceData['invoice_date']}</td>
+                                <td>{$invoiceData['emp_id']}</td>
+                                <td>{$invoiceData['cus_id']}</td>
+                                <td>{$invoiceData['invoice_status']}</td>
+                            </tr>
                                 </tbody>
                             </table>
                           </div>";
@@ -85,6 +87,7 @@ session_start();
                                         <th>Invoice Number</th>
                                         <th>Date of Invoice</th>
                                         <th>Employee ID</th>
+                                        <th>Customer ID</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -93,6 +96,7 @@ session_start();
                                         <td>{$invoiceData['invoice_id']}</td>
                                         <td>{$invoiceData['invoice_date']}</td>
                                         <td>{$invoiceData['emp_id']}</td>
+                                        <td>{$invoiceData['cus_id']}</td>
                                         <td>{$invoiceData['invoice_status']}</td>
                                     </tr>
                                 </tbody>
