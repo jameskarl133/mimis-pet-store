@@ -75,13 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["emp_id"] = $employeeIdRow['emp_id'];
 
             } else {
-                $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES (1, 1, NOW(), 'open')";
-                if (!mysqli_query($conn, $insertInvoiceSql)) {
-                    die("Error creating new invoice: " . mysqli_error($conn));
-                }
-
-                $invoiceId = mysqli_insert_id($conn);
-                $employeeIdSql = "SELECT emp_id FROM invoice WHERE invoice_id = '$invoiceId'";
+                // Fetch the employee ID before using it in the INSERT query
+                $employeeIdSql = "SELECT emp_id FROM employee WHERE emp_id = '$_SESSION[emp_id]'";
                 $employeeIdResult = mysqli_query($conn, $employeeIdSql);
 
                 if (!$employeeIdResult) {
@@ -90,6 +85,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $employeeIdRow = mysqli_fetch_assoc($employeeIdResult);
                 $_SESSION["emp_id"] = $employeeIdRow['emp_id'];
+
+                // Now you can use $employeeIdResult in the INSERT query
+                $insertInvoiceSql = "INSERT INTO invoice (emp_id, cus_id, invoice_date, invoice_status) VALUES ('$employeeIdRow[emp_id]', 1, NOW(), 'open')";
+                if (!mysqli_query($conn, $insertInvoiceSql)) {
+                    die("Error creating new invoice: " . mysqli_error($conn));
+                }
+
+                $invoiceId = mysqli_insert_id($conn);
             }
 
             // Check if the same product already exists in the open invoice
