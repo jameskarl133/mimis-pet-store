@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php include "addprodStyle.php"; ?>
 </head>
 <body>
-<?php include "addprodHeader.php"; ?>
+<?php include "header.php"; ?>
 
     <div class="content">
         <div class="container">

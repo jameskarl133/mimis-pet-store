@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["req_id"])) {
 
         // Run the query and check for errors
         if ($conn->query($updateQuery) === TRUE) {
-            echo "<script>alert('Record updated successfully');</script>";
+            echo "<script>alert('Product Approved');</script>";
         } else {
             echo "Error updating record: " . $conn->error;
         }
@@ -44,7 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["req_id"])) {
                         // Product exists, update the inventory quantity
                         $updateInventory = "UPDATE inventory SET inv_item_qty = inv_item_qty + $requestedQty 
                                            WHERE prod_id = $productId";
-                        $conn->query($updateInventory);
+                                           $conn->query($updateInventory);
+                        $updateInventorystat = "UPDATE inventory SET inv_item_status = 'available'
+                                           WHERE prod_id = $productId";
+                        
+                        $conn->query($updateInventorystat);
                     } else {
                         // Product doesn't exist, insert a new record in the inventory
                         $insertInventory = "INSERT INTO inventory (prod_id, inv_item_qty) VALUES ($productId, $requestedQty)";
@@ -53,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["req_id"])) {
                 }
             }
 
-            echo "<script>alert('Record received successfully');</script>";
+            echo "<script>alert('Product Received');</script>";
         } else {
             echo "Error updating record: " . $conn->error;
         }
@@ -63,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["req_id"])) {
 
         // Run the query and check for errors
         if ($conn->query($updateQuery) === TRUE) {
-            echo "<script>alert('Record removed successfully');</script>";
+            echo "<script>alert('Removed successfully');</script>";
         } else {
             echo "Error updating record: " . $conn->error;
         }
