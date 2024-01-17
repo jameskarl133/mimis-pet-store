@@ -38,6 +38,18 @@ while ($rowRequisitionCount = $resultRequisitionCount->fetch_assoc()) {
 <html lang="en">
 <head>
     <?php include "Style.php"; ?>
+    <style>
+
+    .container {
+        width: 80%;
+        background-color: #fff; /* Change this to white (#fff) */
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: auto; /* Center the container horizontally */
+        margin-top: 20px; /* Add some top margin for spacing */
+    }
+</style>
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
