@@ -12,6 +12,7 @@
       <li class="nav-item"><a href="/purchase.php" class="nav-link">Purchase</a></li>
         <li class="nav-item"><a href="/order.php" class="nav-link">Order</a></li>
         <li class="nav-item"><a href="/searchinv.php" class="nav-link">Search Invoice</a></li>
+        <li class="nav-item"><a href="/invoicedata.php" class="nav-link">Invoice Data</a></li>
         <li class="nav-item"><a href="/index.php" class="nav-link">Logout</a></li>
       </ul>
     </header>
