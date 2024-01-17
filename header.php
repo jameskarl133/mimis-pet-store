@@ -9,7 +9,7 @@
 
       <ul class="nav nav-pills">
       <li class="nav-item"><a href="/home.php" class="nav-link">Home</a></li>
-      <li class="nav-item"><a href="/ViewProduct.php" class="nav-link">View All</a></li>
+      <li class="nav-item"><a href="/ViewProduct.php" class="nav-link">Inventory</a></li>
         <li class="nav-item"><a href="/add.php"  class="nav-link" aria-current="page">Add Product</a></li>
         <li class="nav-item"><a href="/Request.php"  class="nav-link" aria-current="page">Confirm Request</a></li>
         <li class="nav-item"><a href="RequestProd.php" class="nav-link">Request</a></li>
