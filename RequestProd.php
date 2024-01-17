@@ -145,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["confirmRequest"])) {
         exit();
         // echo "<script>alert('Request Confirmed');</script>";
     } else {
-        echo "No requested products to confirm.";
+        echo "<script>alert('No requested products to confirm');</script>";
     }
 }
 
@@ -326,43 +326,58 @@ if ($resultEmployee->num_rows > 0) {
 </form>
     </div>
 </div>
-    <script>
-        // JavaScript function to show the request form
-        function showRequestForm(productId, productName) {
-            document.getElementById('requestProductId').value = productId;
-            document.getElementById('requestProductName').value = productName;
-            document.getElementById('requestForm').style.display = 'block';
-        }
+<script>
+    // JavaScript function to show the request form
+    function showRequestForm(productId, productName) {
+        document.getElementById('requestProductId').value = productId;
+        document.getElementById('requestProductName').value = productName;
+        document.getElementById('requestForm').style.display = 'block';
+    }
 
-        // JavaScript function to hide the request form
-        function hideRequestForm() {
-            document.getElementById('requestForm').style.display = 'none';
-        }
+    // JavaScript function to hide the request form
+    function hideRequestForm() {
+        document.getElementById('requestForm').style.display = 'none';
+    }
 
-        // JavaScript function to search products
-        function searchProducts() {
-            let input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("search");
-            filter = input.value.toUpperCase();
-            table = document.querySelector("table");
-            tr = table.getElementsByTagName("tr");
+    // JavaScript function to search products
+    function searchProducts() {
+        let input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.querySelector("table");
+        tr = table.getElementsByTagName("tr");
 
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[1]; // Assuming the product name is in the second column
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1]; // Assuming the product name is in the second column
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
                 }
             }
         }
-        function removeProduct(reqId) {
-        alert('Removing product with req_id: ' + reqId);
+    }
+
+    // JavaScript function to validate quantity before form submission
+    function validateQuantity() {
+        let quantityInput = document.getElementById('requestQuantity');
+        let quantityValue = parseInt(quantityInput.value);
+
+        // Check if quantity is a positive integer
+        if (isNaN(quantityValue) || quantityValue <= 0) {
+            alert('Please enter a valid quantity.');
+            return false;
         }
 
-    </script>
+        return true;
+    }
+
+    // Attach the validateQuantity function to the form's onsubmit event
+    document.getElementById('requestForm').onsubmit = function () {
+        return validateQuantity();
+    };
+</script>
 </body>
 </html>
