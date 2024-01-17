@@ -154,11 +154,14 @@ if ($resultSuppliers->num_rows > 0) {
                                 echo "<input type='hidden' name='req_id' value='{$rowRequisition['req_id']}'>";
                                 echo "<button type='submit' name='approve' value='1'>Approve</button>";
                                 echo "<button type='submit' name='remove' value='1'>Remove</button>";
-                            } elseif ($rowRequisition['req_stat'] == "APPROVED") {
+                            } elseif ($rowRequisition['req_stat'] == "IN TRANSIT") {
                                 echo "<input type='hidden' name='req_id' value='{$rowRequisition['req_id']}'>";
                                 echo "<button type='submit' name='receive' value='1'>Receive</button>";
                                 echo "<button type='submit' name='remove' value='1'>Remove</button>";
-                            } else {
+                            } elseif ($rowRequisition['req_stat'] == "APPROVED") {
+                                echo "Waiting for Purchase";
+                            }
+                            else{
                                 echo "DONE";
                             }
                             echo "</td>";
