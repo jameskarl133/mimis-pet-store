@@ -14,7 +14,7 @@
         <li class="nav-item"><a href="/add.php"  class="nav-link" aria-current="page">Add Product</a></li>
         <li class="nav-item"><a href="/Request.php"  class="nav-link" aria-current="page">Confirm Request</a></li>
         <li class="nav-item"><a href="RequestProd.php" class="nav-link">Request</a></li>
-        <li class="nav-item"><a href="order.php" class="nav-link">Add Order</a></li>
+        <li class="nav-item"><a href="/Analytics.php" class="nav-link">Analytics</a></li>
         <li class="nav-item"><a href="/logout.php" class="nav-link">Logout</a></li>
       </ul>
     </header>
