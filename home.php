@@ -26,12 +26,15 @@ $user_name = isset($_SESSION["username"]) ? $_SESSION["username"] : "";
             <?php
             echo "<h1>Welcome: $user_type, $user_name!</h1>";
             ?>
+            
         </div>
+       
     </div>
-
+    
     <form action="" method="post">
         <div class="content">
             <div class="container">
+            <?php include "profile.php"; ?>
             </div>
         </div>
     </form>

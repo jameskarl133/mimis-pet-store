@@ -95,8 +95,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for='emp_user'>Employee User:</label>
                     <input type='text' name='emp_user' value='{$row['emp_user']}' required>
 
-                    <label for='emp_status'>Employee Status:</label>
-                    <input type='text' name='emp_status' value='{$row['emp_status']}' required>
+                    <label for='emp_status'>Status:</label>
+                    <select id='emp_status' name='emp_status' required>
+                        <option value='Active' " . ($row['emp_status'] == 'Active' ? 'selected' : '') . ">Active</option>
+                        <option value='Disable' " . ($row['emp_status'] == 'Disable' ? 'selected' : '') . ">Disable</option>
+                    </select><br>
 
                     <label for='emp_type'>Employee Type:</label>
                     <select name='emp_type' required>

@@ -12,14 +12,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        if ($password == $row["emp_pass"]) {
-            $_SESSION["username"] = $username;
-            $_SESSION["emp_id"] = $row["emp_id"];
-            $_SESSION["emp_type"] = $row["emp_type"];
-            header("Location: home.php");
-            exit();
+        if ($row["emp_status"] == "Active") {
+            if ($password == $row["emp_pass"]) {
+                $_SESSION["username"] = $username;
+                $_SESSION["emp_id"] = $row["emp_id"];
+                $_SESSION["emp_type"] = $row["emp_type"];
+                header("Location: home.php");
+                exit();
+            } else {
+                $login_error = "Invalid password";
+            }
         } else {
-            $login_error = "Invalid password";
+            echo "<script>alert('Account is disabled. Contact admin to activate your account'); window.location='login_page.php';</script>";
         }
     } else {
         $login_error = "User not found";

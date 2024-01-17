@@ -30,7 +30,8 @@
             color: #64E987;
         }
         h2{
-            color : #88CEFB;
+            color : black;
+            margin-top: -50px;
         }
 
         .content {
@@ -168,6 +169,52 @@ form textarea {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-sizing: border-box;
 }
+.search-container {
+            margin-bottom: 5px; 
+            margin-top: -50px;
+        }
+
+        .search-container input[type=text] {
+            padding: 8px;
+            margin-right: 5px;
+        }
+
+        .search-container button {
+            padding: 8px 12px;
+        }
+        .search-container label {
+            font-weight: bold;
+        }
+        .content table td form {
+            display: inline-block;
+        }
+
+        .content table td form .update,
+        .content table td form .delete {
+            margin-right: -5px;
+        }
+        .content table td form .delete{
+            margin-right: -100px;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container form {
+            display: flex;
+        }
+
+        .search-container input[type="text"] {
+            margin-right: 10px;
+        }
+        .search-container label {
+            margin-right: 10px;
+        }
+        .search-container button {
+            cursor: pointer;
+        }
+    
     </style>
