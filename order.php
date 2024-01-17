@@ -165,7 +165,7 @@ if (isset($_POST['checkout'])) {
             $updateInventorySql = "UPDATE inventory SET inv_item_qty = inv_item_qty - $purQty WHERE prod_id = $productId";
             mysqli_query($conn, $updateInventorySql);
         }
-
+        $errorMessage = "checked out successfully.";
         mysqli_commit($conn);
     } catch (Exception $e) {
         mysqli_rollback($conn);
