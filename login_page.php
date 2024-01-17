@@ -130,6 +130,9 @@ $conn->close();
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
         </div>
+        <div class="form-link">
+                <label for="reg"><a href ="reset_pass.php">Forgot Password?</a> 
+            </div>
         <div class="form-group">
             <input type="submit" value="Login">
         </div>
