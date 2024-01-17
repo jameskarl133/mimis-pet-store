@@ -7,6 +7,7 @@ if (isset($_GET['verify_token'])) {
         die('Could not connect to the database');
     }
 
+    
     $verifyQuery = $conn->query("SELECT * FROM employee WHERE verify_token = '$code'");
 
     if ($verifyQuery->num_rows == 0) {

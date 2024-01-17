@@ -4,6 +4,7 @@
  * PHPMailer - PHP email creation and transport class.
  * PHP Version 5.5.
  *
+ * 
  * @see https://github.com/PHPMailer/PHPMailer/ The PHPMailer GitHub project
  *
  * @author    Marcus Bointon (Synchro/coolbru) <phpmailer@synchromedia.co.uk>

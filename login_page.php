@@ -112,6 +112,7 @@ $conn->close();
     display: inline-block;
 }
 
+
     </style>
 </head>
 <body>
@@ -141,6 +142,5 @@ $conn->close();
             </div>
     </form>
 </div>
-
 </body>
 </html>
