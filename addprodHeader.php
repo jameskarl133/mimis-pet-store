@@ -16,7 +16,7 @@
         }
         ?>
         <li class="nav-item"><a href="/ViewProduct.php" class="nav-link">Requisition</a></li>
-        <li class="nav-item"><a href="order.php" class="nav-link">Add Order</a></li>
+        <li class="nav-item"><a href="order.php" class="nav-link">Purchasing</a></li>
         <li class="nav-item"><a href="/logout.php" class="nav-link">Logout</a></li>
       </ul>
     </header>

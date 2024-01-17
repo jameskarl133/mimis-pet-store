@@ -1,68 +1,68 @@
 <?php
-// Include your database connection file
 session_start();
-include "header.php";
-include "Style.php";
-/*
 include "components/db.php";
 
-// Fetch data from the database
-$sql = "SELECT brand.Brand_Name, COUNT(requisition.brand_id) AS frequency
-        FROM brand
-        LEFT JOIN requisition ON brand.brand_id = requisition.brand_id
-        GROUP BY brand.Brand_Name
-        ORDER BY frequency DESC";
+// Fetch supplier IDs and names from the supplier table
+$sqlSuppliers = "SELECT sup_id, sup_name FROM supplier";
+$resultSuppliers = $conn->query($sqlSuppliers);
 
-$result = $conn->query($sql);
+// Check if there are results
+if ($resultSuppliers->num_rows > 0) {
+    // Create an array to store supplier data
+    $supplierData = array();
 
-// Initialize arrays to store data for the chart
-$brandNames = [];
-$frequencies = [];
-
-while ($row = $result->fetch_assoc()) {
-    $brandNames[] = $row['Brand_Name'];
-    $frequencies[] = $row['frequency'];
+    // Fetch each supplier ID and name and store it in the array
+    while ($rowSupplier = $resultSuppliers->fetch_assoc()) {
+        $supplierData[$rowSupplier['sup_id']] = $rowSupplier['sup_name'];
+    }
+} else {
+    // Handle the case when there are no suppliers
+    $supplierData = array();
 }
 
-// Close the database connection
-$conn->close();
+// Fetch supplier-wise requisition count
+$sqlRequisitionCount = "SELECT sup_id, COUNT(*) AS count FROM requisition GROUP BY sup_id";
+$resultRequisitionCount = $conn->query($sqlRequisitionCount);
+
+// Create data arrays for Chart.js
+$supplierLabels = array();
+$requisitionCounts = array();
+
+while ($rowRequisitionCount = $resultRequisitionCount->fetch_assoc()) {
+    $supplierLabels[] = $supplierData[$rowRequisitionCount['sup_id']];
+    $requisitionCounts[] = $rowRequisitionCount['count'];
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <?php include "Style.php"; ?>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brand Frequency Chart</title>
+    <title>Supplier Requisition Chart</title>
     <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <?php include "Style.php"; ?>
 </head>
-
 <body>
     <?php include "header.php"; ?>
-
-    <div class="content">
-        <div class="container">
-            <h1>Brand Request Analysis Chart</h1>
-
-            <div class="chart-container">
-                <canvas id="brandChart"></canvas>
-            </div>
-        </div>
+<div class="content">
+    <div class="container">
+        <h2>Order From Supplier</h2>
+        <canvas id="requisitionChart" width="400" height="200"></canvas>
     </div>
-
+</div>
     <script>
         // Create a bar chart using Chart.js
-        var ctx = document.getElementById('brandChart').getContext('2d');
-        var brandChart = new Chart(ctx, {
+        var ctx = document.getElementById('requisitionChart').getContext('2d');
+        var chart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: <?php echo json_encode($brandNames); ?>,
+                labels: <?php echo json_encode($supplierLabels); ?>,
                 datasets: [{
-                    label: 'Total Brand Sales',
-                    data: <?php echo json_encode($frequencies); ?>,
+                    label: 'Order From Supplier Count',
+                    data: <?php echo json_encode($requisitionCounts); ?>,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
@@ -71,26 +71,11 @@ $conn->close();
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Request Count'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Brand Names'
-                        }
+                        beginAtZero: true
                     }
                 }
             }
         });
     </script>
 </body>
-
 </html>
-*/
-
-echo "ayuhunon";
-?>
