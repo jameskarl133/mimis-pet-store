@@ -9,6 +9,7 @@
 
       <ul class="nav nav-pills">
       <li class="nav-item"><a href="/home.php" class="nav-link">Home</a></li>
+      <li class="nav-item"><a href="/purchase.php" class="nav-link">Purchase</a></li>
         <li class="nav-item"><a href="/order.php" class="nav-link">Order</a></li>
         <li class="nav-item"><a href="/searchinv.php" class="nav-link">Search Invoice</a></li>
         <li class="nav-item"><a href="/index.php" class="nav-link">Logout</a></li>
