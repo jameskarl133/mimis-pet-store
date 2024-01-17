@@ -24,10 +24,12 @@ if (!$emp) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emp_name = filter_input(INPUT_POST, 'emp_name', FILTER_SANITIZE_STRING);
     $emp_user = filter_input(INPUT_POST, 'emp_user', FILTER_SANITIZE_STRING);
+    $emp_phone = filter_input(INPUT_POST, 'emp_phone', FILTER_SANITIZE_STRING);
+    $emp_email = filter_input(INPUT_POST, 'emp_email', FILTER_VALIDATE_EMAIL);
 
-    $update_sql = "UPDATE employee SET emp_name = ?, emp_user = ? WHERE emp_id = ?";
+    $update_sql = "UPDATE employee SET emp_name = ?, emp_user = ?, emp_phone = ?, emp_email = ? WHERE emp_id = ?";
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param('ssi', $emp_name, $emp_user, $emp_id);
+    $update_stmt->bind_param('ssssi', $emp_name, $emp_user, $emp_phone, $emp_email, $emp_id);
 
     if ($update_stmt->execute()) {
         header("Location: home.php"); 
@@ -48,47 +50,47 @@ $conn->close();
     <title>Edit Profile</title>
     <style>
     body {
-    font-family: Arial, sans-serif;
-    background-color: #ffb6c1;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        font-family: Arial, sans-serif;
+        background-color: #ffb6c1;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-.edit-profile-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+    .edit-profile-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-}
+    label {
+        display: block;
+        margin-bottom: 8px;
+    }
 
-input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 16px;
-    box-sizing: border-box;
-}
+    input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+    }
 
-input[type="submit"] {
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-}
+    input[type="submit"] {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 
-input[type="submit"]:hover {
-    background-color: #45a049;
-}
-</style>
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+    </style>
 </head>
 <body>
     <div class="edit-profile-container">
@@ -99,6 +101,12 @@ input[type="submit"]:hover {
 
             <label for="emp_user">Employee Username:</label>
             <input type="text" id="emp_user" name="emp_user" value="<?php echo htmlspecialchars($emp['emp_user']); ?>" required>
+
+            <label for="emp_phone">Employee Phone:</label>
+            <input type="text" id="emp_phone" name="emp_phone" value="<?php echo htmlspecialchars($emp['emp_phone']); ?>" required>
+
+            <label for="emp_email">Employee Email:</label>
+            <input type="email" id="emp_email" name="emp_email" value="<?php echo htmlspecialchars($emp['emp_email']); ?>" required>
 
             <input type="submit" value="Save Changes">
         </form>
