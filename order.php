@@ -308,7 +308,7 @@ if (isset($_POST['cancel'])) {
         </div>
         <form method="post">
                     <button type="submit" name="checkout">Checkout</button>
-                    <button type="submit" name="cancel">Cancel Invoice</button>
+                    <button type="submit" name="cancel">Cancel Purchase</button>
                 </form>
     </div>
 
